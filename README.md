@@ -33,7 +33,6 @@ cd Wholesale-Live-Update
 ### 2. Install Dependencies
 
 ```bash
-cd app
 yarn install
 ```
 
@@ -85,7 +84,6 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 ## 📁 Project Structure
 
 ```
-app/
 ├── components/          # React components
 │   ├── ui/             # shadcn/ui components
 │   ├── inventory-tracker.tsx
@@ -97,8 +95,11 @@ app/
 │   └── utils.ts        # Helper functions
 ├── app/                # Next.js app directory
 │   ├── api/           # API routes
+│   ├── layout.tsx     # Root layout
+│   ├── page.tsx       # Home page
 │   └── globals.css    # Global styles
-└── prisma/            # Database schema (optional)
+├── prisma/            # Database schema (optional)
+└── hooks/             # Custom React hooks
 ```
 
 ## 🎨 Design System
