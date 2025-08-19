@@ -2,15 +2,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ShopifyProduct, ApiResponse } from '@/lib/types';
 
-const SHOPIFY_STORE_URL = process.env.SHOPIFY_STORE_URL;
-const SHOPIFY_ADMIN_API_ACCESS_TOKEN = process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN;
-
-if (!SHOPIFY_STORE_URL || !SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
-  throw new Error('Missing Shopify configuration in environment variables');
-}
-
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const SHOPIFY_STORE_URL = process.env.SHOPIFY_STORE_URL;
+    const SHOPIFY_ADMIN_API_ACCESS_TOKEN = process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN;
+
     if (!SHOPIFY_STORE_URL || !SHOPIFY_ADMIN_API_ACCESS_TOKEN) {
       return NextResponse.json(
         { 
