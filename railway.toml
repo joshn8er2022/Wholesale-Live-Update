@@ -1,0 +1,12 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd app && npm install && npx prisma generate && npx prisma db push"
+watchPatterns = ["app/**"]
+
+[deploy]
+startCommand = "cd app && npm run start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[build.env]
+NIXPACKS_CONFIG_FILE = "app/nixpacks.toml"
