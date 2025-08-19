@@ -1,0 +1,42 @@
+🚀 QUICK RAILWAY DEPLOYMENT - COPY & PASTE COMMANDS
+
+Your Shopify credentials need to be configured!
+Store: YOUR-STORE.myshopify.com
+Token: YOUR-SHOPIFY-ADMIN-TOKEN
+
+==== RUN THESE COMMANDS IN ORDER ====
+
+1️⃣ Navigate to app directory:
+cd /Users/joshisrael/Wholesale-Live-Update/app
+
+2️⃣ Login to Railway (opens browser):
+railway login
+
+3️⃣ Initialize new project:
+railway init
+
+4️⃣ Add PostgreSQL:
+railway add
+(Select PostgreSQL)
+
+5️⃣ Link project:
+railway link
+
+6️⃣ Set ALL environment variables (copy this entire block):
+railway variables set NEXTAUTH_SECRET="$(openssl rand -base64 32)" SHOPIFY_STORE_URL="YOUR-STORE.myshopify.com" SHOPIFY_ADMIN_API_ACCESS_TOKEN="YOUR-SHOPIFY-TOKEN"
+
+7️⃣ Deploy:
+railway up
+
+8️⃣ Get your app URL:
+railway open
+
+9️⃣ Update NEXTAUTH_URL (replace YOUR-APP-NAME with actual URL):
+railway variables set NEXTAUTH_URL="https://YOUR-APP-NAME.railway.app"
+railway up
+
+✅ DONE! Your app is live!
+
+Test accounts:
+- Admin: admin@humehealth.com / admin123
+- Client: client@healthcare.org / client123

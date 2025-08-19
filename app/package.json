@@ -5,7 +5,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate:sqlite": "prisma generate --schema=prisma/schema.sqlite.prisma",
+    "db:push:sqlite": "prisma db push --schema=prisma/schema.sqlite.prisma",
+    "db:seed:sqlite": "prisma db seed --schema=prisma/schema.sqlite.prisma",
+    "dev:sqlite": "npm run db:generate:sqlite && npm run db:push:sqlite && npm run db:seed:sqlite && next dev",
+    "build:sqlite": "npm run db:generate:sqlite && npm run db:push:sqlite && next build",
+    "start:sqlite": "next start"
   },
   "prisma": {
     "seed": "tsx --require dotenv/config scripts/seed.ts"
@@ -15,9 +21,9 @@
     "@types/node": "20.6.2",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
-    "@typescript-eslint/eslint-plugin": "7.0.0",
-    "@typescript-eslint/parser": "7.0.0",
-    "eslint": "9.24.0",
+    "@typescript-eslint/eslint-plugin": "6.21.0",
+    "@typescript-eslint/parser": "6.21.0",
+    "eslint": "8.57.0",
     "eslint-config-next": "15.3.0",
     "eslint-plugin-prettier": "5.1.3",
     "eslint-plugin-react-hooks": "4.6.0",
