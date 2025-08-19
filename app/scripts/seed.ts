@@ -1,36 +1,21 @@
 
 import { PrismaClient, UserRole, PurchaseStatus } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { randomBytes } from 'crypto'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Starting seed...')
+  console.log('🌱 Starting comprehensive database seeding...')
   
-  // Create test admin user (hidden from user)
-  const adminPassword = await bcrypt.hash('johndoe123', 12)
-  const testAdmin = await prisma.user.upsert({
-    where: { email: 'john@doe.com' },
-    update: {},
-    create: {
-      email: 'john@doe.com',
-      password: adminPassword,
-      name: 'John Doe',
-      firstName: 'John',
-      lastName: 'Doe',
-      role: UserRole.ADMIN,
-      companyName: 'Hume Health Admin',
-    },
-  })
-
-  // Create sample admin user
-  const adminUserPassword = await bcrypt.hash('admin123', 12)
+  // Create admin users
+  const adminPassword = await bcrypt.hash('admin123', 12)
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
+    where: { email: 'admin@humehealth.com' },
     update: {},
     create: {
-      email: 'admin@example.com',
-      password: adminUserPassword,
+      email: 'admin@humehealth.com',
+      password: adminPassword,
       name: 'Admin User',
       firstName: 'Admin',
       lastName: 'User',
@@ -56,6 +41,7 @@ async function main() {
       city: 'New York',
       state: 'NY',
       zip: '10001',
+      phone: '555-0101',
     },
   })
 
@@ -74,16 +60,17 @@ async function main() {
       city: 'Los Angeles',
       state: 'CA',
       zip: '90210',
+      phone: '555-0102',
     },
   })
 
   // Create product categories
   const category1 = await prisma.productCategory.upsert({
-    where: { name: 'Wellness Supplements' },
+    where: { name: 'Supplements' },
     update: {},
     create: {
-      name: 'Wellness Supplements',
-      description: 'Health and wellness supplement products',
+      name: 'Supplements',
+      description: 'Nutritional supplements and vitamins',
     },
   })
 
@@ -92,24 +79,24 @@ async function main() {
     update: {},
     create: {
       name: 'Medical Devices',
-      description: 'Medical equipment and devices',
+      description: 'Medical equipment and monitoring devices',
     },
   })
 
   // Create product schemes
   const product1 = await prisma.productScheme.upsert({
-    where: { sku: 'WELLNESS-001' },
+    where: { sku: 'VIT-D3-5000' },
     update: {},
     create: {
-      sku: 'WELLNESS-001',
-      title: 'Premium Vitamin D3 - 5000 IU',
+      sku: 'VIT-D3-5000',
+      title: 'Vitamin D3 5000 IU',
       description: 'High-potency vitamin D3 supplement for bone health and immune support',
       shopifyProductId: '12345678901',
       shopifyVariantId: '12345678902',
       unitPrice: 29.99,
       bulkPrice: 19.99,
       minimumBulkQty: 50,
-      maxUnitsPerLink: 5,
+      maxUnitsPerLink: 1,
       categoryId: category1.id,
       tags: ['vitamin-d', 'bone-health', 'immune-support'],
       image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop',
@@ -117,10 +104,10 @@ async function main() {
   })
 
   const product2 = await prisma.productScheme.upsert({
-    where: { sku: 'WELLNESS-002' },
+    where: { sku: 'OMEGA-3-COMPLEX' },
     update: {},
     create: {
-      sku: 'WELLNESS-002',
+      sku: 'OMEGA-3-COMPLEX',
       title: 'Omega-3 Fish Oil Complex',
       description: 'Premium omega-3 fatty acids for heart and brain health',
       shopifyProductId: '12345678903',
@@ -128,7 +115,7 @@ async function main() {
       unitPrice: 39.99,
       bulkPrice: 24.99,
       minimumBulkQty: 25,
-      maxUnitsPerLink: 3,
+      maxUnitsPerLink: 2,
       categoryId: category1.id,
       tags: ['omega-3', 'heart-health', 'brain-health'],
       image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop',
@@ -136,12 +123,12 @@ async function main() {
   })
 
   const product3 = await prisma.productScheme.upsert({
-    where: { sku: 'MEDICAL-001' },
+    where: { sku: 'BP-MONITOR-DIGITAL' },
     update: {},
     create: {
-      sku: 'MEDICAL-001',
+      sku: 'BP-MONITOR-DIGITAL',
       title: 'Digital Blood Pressure Monitor',
-      description: 'Professional-grade digital blood pressure monitoring device',
+      description: 'Professional-grade digital blood pressure monitoring device with memory',
       shopifyProductId: '12345678905',
       unitPrice: 89.99,
       bulkPrice: 59.99,
@@ -153,122 +140,176 @@ async function main() {
     },
   })
 
-  // Create sample bulk purchases for clients
+  // Create sample bulk purchases for client1
   const bulkPurchase1 = await prisma.bulkPurchase.create({
     data: {
       userId: client1.id,
-      shopifyOrderId: 'SP_001_2024_001',
+      shopifyOrderId: 'ORDER_001_2024',
       shopifyOrderNumber: '#1001',
-      productSku: 'WELLNESS-001',
-      productTitle: 'Premium Vitamin D3 - 5000 IU',
-      productId: '12345678901',
-      variantId: '12345678902',
+      productSku: product1.sku,
+      productTitle: product1.title,
+      productId: product1.shopifyProductId,
+      variantId: product1.shopifyVariantId,
       quantityPurchased: 100,
-      quantityRemaining: 85,
-      unitCost: 19.99,
-      totalCost: 1999.00,
-      customerName: 'Dr. Sarah Johnson',
-      customerEmail: 'client1@example.com',
-      billingName: 'Johnson Medical Practice',
-      billingAddress: '123 Medical Center Dr, New York, NY 10001',
-      shippingName: 'Dr. Sarah Johnson',
-      shippingAddress: '123 Medical Center Dr, New York, NY 10001',
+      quantityRemaining: 75,
+      unitCost: product1.bulkPrice,
+      totalCost: product1.bulkPrice * 100,
+      customerName: client1.name || '',
+      customerEmail: client1.email,
+      billingName: client1.name,
+      billingAddress: `${client1.address}, ${client1.city}, ${client1.state} ${client1.zip}`,
+      shippingName: client1.name,
+      shippingAddress: `${client1.address}, ${client1.city}, ${client1.state} ${client1.zip}`,
       orderDate: new Date('2024-01-15'),
-      discountCode: 'PATIENT_VIT_D3_001',
-      customLink: 'https://humeheath-partner.myshopify.com/discount/PATIENT_VIT_D3_001',
+      status: PurchaseStatus.ACTIVE,
     },
   })
 
   const bulkPurchase2 = await prisma.bulkPurchase.create({
     data: {
-      userId: client2.id,
-      shopifyOrderId: 'SP_002_2024_001',
+      userId: client1.id,
+      shopifyOrderId: 'ORDER_002_2024',
       shopifyOrderNumber: '#1002',
-      productSku: 'WELLNESS-002',
-      productTitle: 'Omega-3 Fish Oil Complex',
-      productId: '12345678903',
-      variantId: '12345678904',
-      quantityPurchased: 50,
-      quantityRemaining: 42,
-      unitCost: 24.99,
-      totalCost: 1249.50,
-      customerName: 'Dr. Michael Chen',
-      customerEmail: 'client2@example.com',
-      billingName: 'Chen Family Medicine',
-      billingAddress: '456 Healthcare Ave, Los Angeles, CA 90210',
-      shippingName: 'Dr. Michael Chen',
-      shippingAddress: '456 Healthcare Ave, Los Angeles, CA 90210',
+      productSku: product2.sku,
+      productTitle: product2.title,
+      productId: product2.shopifyProductId,
+      variantId: product2.shopifyVariantId,
+      quantityPurchased: 60,
+      quantityRemaining: 40,
+      unitCost: product2.bulkPrice,
+      totalCost: product2.bulkPrice * 60,
+      customerName: client1.name || '',
+      customerEmail: client1.email,
+      billingName: client1.name,
+      billingAddress: `${client1.address}, ${client1.city}, ${client1.state} ${client1.zip}`,
+      shippingName: client1.name,
+      shippingAddress: `${client1.address}, ${client1.city}, ${client1.state} ${client1.zip}`,
       orderDate: new Date('2024-02-01'),
-      discountCode: 'PATIENT_OMEGA_3_001',
-      customLink: 'https://humeheath-partner.myshopify.com/discount/PATIENT_OMEGA_3_001',
+      status: PurchaseStatus.ACTIVE,
     },
   })
 
-  // Create patient links
+  // Create bulk purchase for client2
+  const bulkPurchase3 = await prisma.bulkPurchase.create({
+    data: {
+      userId: client2.id,
+      shopifyOrderId: 'ORDER_003_2024',
+      shopifyOrderNumber: '#1003',
+      productSku: product3.sku,
+      productTitle: product3.title,
+      productId: product3.shopifyProductId,
+      quantityPurchased: 25,
+      quantityRemaining: 18,
+      unitCost: product3.bulkPrice,
+      totalCost: product3.bulkPrice * 25,
+      customerName: client2.name || '',
+      customerEmail: client2.email,
+      billingName: client2.name,
+      billingAddress: `${client2.address}, ${client2.city}, ${client2.state} ${client2.zip}`,
+      shippingName: client2.name,
+      shippingAddress: `${client2.address}, ${client2.city}, ${client2.state} ${client2.zip}`,
+      orderDate: new Date('2024-01-28'),
+      status: PurchaseStatus.ACTIVE,
+    },
+  })
+
+  // Create patient links with realistic tokens
+  const linkToken1 = randomBytes(32).toString('hex')
+  const discountCode1 = `HUME-${randomBytes(8).toString('hex').toUpperCase()}`
   const patientLink1 = await prisma.patientLink.create({
     data: {
       userId: client1.id,
       bulkPurchaseId: bulkPurchase1.id,
       productSchemeId: product1.id,
-      linkToken: 'patient_link_token_001',
-      customUrl: 'https://humeheath-partner.myshopify.com/patient/patient_link_token_001',
-      discountCode: 'PATIENT_VIT_D3_001',
-      maxUses: 5,
-      currentUses: 2,
-      patientEmail: 'patient1@example.com',
+      linkToken: linkToken1,
+      customUrl: `patient/${linkToken1}`,
+      discountCode: discountCode1,
+      maxUses: 1,
+      currentUses: 0,
+      isActive: true,
+      patientEmail: 'john.smith@email.com',
       patientName: 'John Smith',
+      notes: 'Vitamin D deficiency - referred by Dr. Johnson',
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
     },
   })
 
+  const linkToken2 = randomBytes(32).toString('hex')
+  const discountCode2 = `HUME-${randomBytes(8).toString('hex').toUpperCase()}`
   const patientLink2 = await prisma.patientLink.create({
     data: {
-      userId: client2.id,
+      userId: client1.id,
       bulkPurchaseId: bulkPurchase2.id,
       productSchemeId: product2.id,
-      linkToken: 'patient_link_token_002',
-      customUrl: 'https://humeheath-partner.myshopify.com/patient/patient_link_token_002',
-      discountCode: 'PATIENT_OMEGA_3_001',
-      maxUses: 3,
-      currentUses: 1,
-      patientEmail: 'patient2@example.com',
+      linkToken: linkToken2,
+      customUrl: `patient/${linkToken2}`,
+      discountCode: discountCode2,
+      maxUses: 1,
+      currentUses: 1, // This one has been used
+      isActive: true,
+      patientEmail: 'jane.doe@email.com',
       patientName: 'Jane Doe',
+      notes: 'Cardiovascular health support - preventive care',
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     },
   })
 
-  // Create sample patient fulfillments
-  await prisma.patientFulfillment.create({
+  const linkToken3 = randomBytes(32).toString('hex')
+  const discountCode3 = `HUME-${randomBytes(8).toString('hex').toUpperCase()}`
+  const patientLink3 = await prisma.patientLink.create({
     data: {
-      patientLinkId: patientLink1.id,
-      bulkPurchaseId: bulkPurchase1.id,
-      shopifyOrderId: 'PATIENT_001',
-      patientEmail: 'patient1@example.com',
-      patientName: 'John Smith',
-      quantityFulfilled: 2,
-      fulfillmentDate: new Date('2024-01-20'),
-      ipAddress: '192.168.1.100',
+      userId: client2.id,
+      bulkPurchaseId: bulkPurchase3.id,
+      productSchemeId: product3.id,
+      linkToken: linkToken3,
+      customUrl: `patient/${linkToken3}`,
+      discountCode: discountCode3,
+      maxUses: 1,
+      currentUses: 0,
+      isActive: true,
+      patientEmail: 'robert.wilson@email.com',
+      patientName: 'Robert Wilson',
+      notes: 'Hypertension monitoring - home care',
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     },
   })
 
+  // Create sample patient fulfillment for the used link
   await prisma.patientFulfillment.create({
     data: {
       patientLinkId: patientLink2.id,
       bulkPurchaseId: bulkPurchase2.id,
-      shopifyOrderId: 'PATIENT_002',
-      patientEmail: 'patient2@example.com',
+      patientEmail: 'jane.doe@email.com',
       patientName: 'Jane Doe',
-      quantityFulfilled: 1,
-      fulfillmentDate: new Date('2024-02-05'),
-      ipAddress: '192.168.1.101',
+      quantityFulfilled: 2,
+      fulfillmentDate: new Date('2024-02-15'),
+      ipAddress: '192.168.1.100',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     },
   })
 
-  console.log('✅ Seed completed successfully!')
-  console.log(`👤 Created admin user: ${adminUser.email}`)
-  console.log(`👥 Created ${2} client users`)
-  console.log(`📦 Created ${3} product schemes`)
-  console.log(`🛒 Created ${2} bulk purchases`)
-  console.log(`🔗 Created ${2} patient links`)
-  console.log(`📋 Created ${2} patient fulfillments`)
+  console.log('✅ Database seeded successfully!')
+  console.log('')
+  console.log('🔐 Login Credentials:')
+  console.log(`   Admin: admin@humehealth.com / admin123`)
+  console.log(`   Client 1: client1@example.com / client123`)
+  console.log(`   Client 2: client2@example.com / client123`)
+  console.log('')
+  console.log('📊 Created Data:')
+  console.log(`   - 1 Admin user`)
+  console.log(`   - 2 Client users`)
+  console.log(`   - 2 Product categories`)
+  console.log(`   - 3 Product schemes`)
+  console.log(`   - 3 Bulk purchases`)
+  console.log(`   - 3 Patient links`)
+  console.log(`   - 1 Patient fulfillment`)
+  console.log('')
+  console.log('🔗 Test Patient Links:')
+  console.log(`   - Active (John Smith): http://localhost:3000/patient/${linkToken1}`)
+  console.log(`   - Used (Jane Doe): http://localhost:3000/patient/${linkToken2}`)
+  console.log(`   - Active (Robert Wilson): http://localhost:3000/patient/${linkToken3}`)
+  console.log('')
+  console.log('💡 Test by logging in as a client and creating new patient links!')
 }
 
 main()
@@ -276,7 +317,7 @@ main()
     await prisma.$disconnect()
   })
   .catch(async (e) => {
-    console.error(e)
+    console.error('❌ Seeding failed:', e)
     await prisma.$disconnect()
     process.exit(1)
   })
